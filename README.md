@@ -20,20 +20,25 @@ Run locally
 1) Install Python deps
    python3 -m pip install -r requirements.txt
 
-2) Start dev server
-   uvicorn App:app --host 0.0.0.0 --port 8000 --reload
+2) Start dev server (default port 3001)
+   # Option A (recommended):
+   python App.py
+   # Option B:
+   uvicorn App:app --host 0.0.0.0 --port 3001 --reload
 
 3) Open docs
-   - Swagger UI: http://localhost:8000/docs
-   - ReDoc: http://localhost:8000/redoc
+   - Swagger UI: http://localhost:3001/docs
+   - ReDoc: http://localhost:3001/redoc
 
 Configuration (optional)
+- PORT: listening port (default: 3001)
+- SERVER_HOST: host to bind (default: 0.0.0.0)
 - DATA_DIR: override path to data directory (default: ./data)
 - CORS_ALLOW_ORIGINS: comma-separated list of allowed origins (default: '*')
 - LOG_LEVEL: Python logging level (default: INFO)
 
 Project structure
-- App.py — FastAPI app setup (CORS, logging, routers, startup)
+- App.py — FastAPI app setup (CORS, logging, routers, startup, runtime entrypoint)
 - routers/ — API route modules
 - models/ — Pydantic schemas
 - services/ — mock data loader and file-based storage

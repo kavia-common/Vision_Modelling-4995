@@ -8,13 +8,20 @@ This app exposes mock-first endpoints for:
 
 Run locally:
 - python3 -m pip install -r requirements.txt
-- uvicorn App:app --host 0.0.0.0 --port 8000 --reload
+- Option A (recommended): python App.py                # binds to 0.0.0.0:3001 by default
+- Option B:           uvicorn App:app --host 0.0.0.0 --port 3001 --reload
+Environment:
+- PORT: listening port (default: 3001)
+- SERVER_HOST: host to bind (default: 0.0.0.0)
+- LOG_LEVEL: Python logging level (default: INFO)
+- CORS_ALLOW_ORIGINS: comma-separated list of allowed origins (default: '*')
+- DATA_DIR: override path to data directory (default: ./data)
 """
 from __future__ import annotations
 
 import logging
 import os
-from typing import List
+from typing import List, Tuple
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -73,6 +80,17 @@ def _get_cors_allow_origins() -> List[str]:
     return [o.strip() for o in env_val.split(",") if o.strip()]
 
 
+def _get_bind() -> Tuple[str, int]:
+    """Resolve host and port to bind from environment with sensible defaults."""
+    host = os.getenv("SERVER_HOST", "0.0.0.0")
+    port_val = os.getenv("PORT") or os.getenv("SERVER_PORT") or "3001"
+    try:
+        port = int(port_val)
+    except (TypeError, ValueError):
+        port = 3001
+    return host, port
+
+
 # Configure CORS for local development
 app.add_middleware(
     CORSMiddleware,
@@ -96,3 +114,26 @@ def on_startup() -> None:
 app.include_router(health_router)
 app.include_router(calls_router)
 app.include_router(models_router)
+
+
+# PUBLIC_INTERFACE
+def main() -> None:
+    """Service runtime entrypoint.
+
+    Starts a Uvicorn HTTP server hosting the FastAPI app.
+    Reads environment variables:
+    - SERVER_HOST: host interface to bind (default 0.0.0.0)
+    - PORT: port to listen on (default 3001)
+
+    Returns:
+        None
+    """
+    import uvicorn
+
+    host, port = _get_bind()
+    logger.info("Booting Uvicorn on %s:%s", host, port)
+    uvicorn.run(app, host=host, port=port, log_level=os.getenv("LOG_LEVEL", "info").lower())
+
+
+if __name__ == "__main__":
+    main()
