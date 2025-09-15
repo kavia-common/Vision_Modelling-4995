@@ -1,0 +1,293 @@
+openapi: 3.1.0
+info:
+  title: Vision Modelling Backend (MVP)
+  version: "0.1.0"
+  description: Mock-first API for Vision Modelling MVP (Flow/Architecture graphs, save/load)
+servers:
+  - url: http://localhost:8000
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok] }
+                  service: { type: string }
+                  version: { type: string }
+  /calls:
+    get:
+      summary: List available calls (mocked)
+      operationId: listCalls
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CallItem"
+  /model/start:
+    post:
+      summary: Start modelling for a call and view (returns mock graph)
+      operationId: startModel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartModelRequest"
+      responses:
+        "200":
+          description: Graph for the call and view (mock)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GraphModel"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /models:
+    get:
+      summary: List saved models
+      operationId: listModels
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ModelSummary"
+    post:
+      summary: Save or upsert a model
+      operationId: createOrUpdateModel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GraphModel"
+      responses:
+        "201":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  status: { type: string, enum: [saved, updated] }
+        "200":
+          description: Updated (upsert)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  status: { type: string, enum: [saved, updated] }
+  /models/{model_id}:
+    get:
+      summary: Get a saved model by id
+      operationId: getModel
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GraphModel"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Update a model by id
+      operationId: updateModel
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GraphModel"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  status: { type: string, enum: [updated] }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Delete a model by id (optional MVP)
+      operationId: deleteModel
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  status: { type: string, enum: [deleted] }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /models/{model_id}/export:
+    get:
+      summary: Export a model (server-side; optional; returns 501 for MVP)
+      operationId: exportModel
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: format
+          required: false
+          schema:
+            type: string
+            enum: [png]
+            default: png
+      responses:
+        "501":
+          description: Not implemented
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [not_implemented] }
+components:
+  schemas:
+    CallItem:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        timestamp: { type: string, format: date-time }
+      required: [id, title, timestamp]
+    StartModelRequest:
+      type: object
+      properties:
+        call_id: { type: string }
+        view:
+          type: string
+          enum: [flow, architecture]
+          default: flow
+      required: [call_id]
+    NodeModel:
+      type: object
+      properties:
+        id: { type: string }
+        label: { type: string }
+        type: { type: string }
+        annotations:
+          type: object
+          additionalProperties: { type: string }
+        color: { type: string }
+      required: [id, label, type]
+    EdgeModel:
+      type: object
+      properties:
+        id: { type: string }
+        source: { type: string }
+        target: { type: string }
+        label: { type: string }
+        type: { type: string }
+      required: [id, source, target, label, type]
+    GraphMeta:
+      type: object
+      properties:
+        source:
+          type: string
+          enum: [mock, ai]
+          default: mock
+        created_at: { type: string, format: date-time }
+        tags:
+          type: array
+          items: { type: string }
+      required: [source, created_at]
+    GraphModel:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        view:
+          type: string
+          enum: [flow, architecture]
+          default: flow
+        nodes:
+          type: array
+          items: { $ref: "#/components/schemas/NodeModel" }
+        edges:
+          type: array
+          items: { $ref: "#/components/schemas/EdgeModel" }
+        meta:
+          $ref: "#/components/schemas/GraphMeta"
+      required: [id, name, view, nodes, edges, meta]
+    ModelSummary:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        updated_at: { type: string, format: date-time }
+        view:
+          type: string
+          enum: [flow, architecture]
+      required: [id, name, updated_at, view]
+    ErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+        details:
+          type: object
+          additionalProperties: true
+      required: [error]

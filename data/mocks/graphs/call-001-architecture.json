@@ -1,0 +1,27 @@
+{
+  "id": "model-call-001-arch",
+  "name": "Call 001 architecture",
+  "view": "architecture",
+  "nodes": [
+    { "id": "n1", "label": "Client", "type": "actor", "annotations": { "role": "end-user" }, "color": "#4F46E5" },
+    { "id": "n2", "label": "API Gateway", "type": "service", "annotations": { "scaling": "x3" }, "color": "#22C55E" },
+    { "id": "n3", "label": "Auth Service", "type": "service", "annotations": { "protocol": "OAuth2" }, "color": "#22C55E" },
+    { "id": "n4", "label": "User Service", "type": "service", "annotations": { "language": "Python" }, "color": "#22C55E" },
+    { "id": "n5", "label": "User DB", "type": "db", "annotations": { "engine": "PostgreSQL" }, "color": "#F59E0B" },
+    { "id": "n6", "label": "Cache", "type": "service", "annotations": { "engine": "Redis" }, "color": "#06B6D4" },
+    { "id": "n7", "label": "Metrics", "type": "service", "annotations": { "stack": "Prom+Grafana" }, "color": "#EF4444" }
+  ],
+  "edges": [
+    { "id": "e1", "source": "n1", "target": "n2", "label": "HTTPS", "type": "call" },
+    { "id": "e2", "source": "n2", "target": "n3", "label": "Auth check", "type": "call" },
+    { "id": "e3", "source": "n2", "target": "n4", "label": "Route", "type": "dependency" },
+    { "id": "e4", "source": "n4", "target": "n5", "label": "SQL", "type": "data" },
+    { "id": "e5", "source": "n4", "target": "n6", "label": "Cache", "type": "dependency" },
+    { "id": "e6", "source": "n2", "target": "n7", "label": "Emit metrics", "type": "dependency" }
+  ],
+  "meta": {
+    "source": "mock",
+    "created_at": "2024-05-01T10:05:00Z",
+    "tags": ["demo", "week2", "architecture"]
+  }
+}
