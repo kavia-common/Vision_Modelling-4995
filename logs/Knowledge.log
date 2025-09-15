@@ -9,3 +9,14 @@
 2025-09-15 04:08:08,075 - Knowledge - INFO - Updating org costs, total cost: 0
 2025-09-15 04:08:08,910 - Knowledge - INFO - Saving knowledge to Redis...
 2025-09-15 04:08:09,041 - Knowledge - INFO - Knowledge saved to Redis successfully
+2025-09-15 04:12:14,212 - Knowledge - INFO - Redis support added with prefix knowledge:b9820gm:
+2025-09-15 04:12:14,473 - Knowledge - INFO - load persisted knowledge: begin
+2025-09-15 04:12:14,634 - Knowledge - INFO - load persisted knowledge: end
+2025-09-15 04:12:14,725 - Knowledge - INFO - load persisted docinfo: begin
+2025-09-15 04:12:14,806 - Knowledge - INFO - load persisted docinfo: end
+2025-09-15 04:12:14,891 - Knowledge - INFO - worker kw1 created with dedicated MongoDB connection (total: 1)
+2025-09-15 04:12:15,011 - Knowledge - INFO - knowledge worker kw1 start
+2025-09-15 04:12:15,099 - Knowledge - INFO - Knowledge creation complete
+2025-09-15 04:12:15,198 - Knowledge - INFO - Updating org costs, total cost: 0
+2025-09-15 04:12:16,028 - Knowledge - INFO - Saving knowledge to Redis...
+2025-09-15 04:12:16,122 - Knowledge - INFO - Knowledge saved to Redis successfully
